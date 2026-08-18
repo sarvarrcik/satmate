@@ -1,0 +1,6 @@
+{
+  "name": "SATMATE",
+  "description": "AI-Powered SAT Math Study-Planning & Tutoring Platform with adaptive roadmaps, MathBook 3.0 verified questions, and Socratic AI coach.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
