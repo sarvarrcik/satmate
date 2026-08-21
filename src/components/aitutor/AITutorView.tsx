@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Sparkles, Send, Trash2, HelpCircle, ChevronRight, BookOpen, Lightbulb, User, Bot } from 'lucide-react';
+import { Sparkles, Send, Trash2, HelpCircle, ChevronRight, BookOpen, Lightbulb, User, Bot, GraduationCap, X, Target, CheckCircle2 } from 'lucide-react';
 import { Question, ChatMessage } from '../../types';
 import { MathText } from '../common/MathText';
 import { chatWithAITutor, getAIHint } from '../../services/aiService';
@@ -44,11 +44,12 @@ What must be true about $b^2 - 4ac$ when a quadratic has exactly one real soluti
 
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showQuestionContext, setShowQuestionContext] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+  }, [messages, isLoading, showQuestionContext]);
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = textToSend || inputValue.trim();
@@ -114,7 +115,7 @@ What must be true about $b^2 - 4ac$ when a quadratic has exactly one real soluti
       {
         id: `msg-${Date.now()}`,
         sender: 'tutor',
-        text: `Hi Alex! I'm your SAT Math AI Coach. We are focusing on **${activeQuestion.topic}**. What part of this question would you like to explore together?`,
+        text: `Hi! I'm your SAT Math AI Coach. We are focusing on **${activeQuestion.topic}**. What part of this question would you like to explore together?`,
         timestamp: Date.now()
       }
     ]);
@@ -127,76 +128,100 @@ What must be true about $b^2 - 4ac$ when a quadratic has exactly one real soluti
   ];
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-8.5rem)] min-h-[600px] bg-white dark:bg-[#0e1322] border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-xs overflow-hidden animate-in fade-in duration-200">
-      {/* Header */}
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50/50 dark:bg-slate-900/40">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-purple-600 p-[1px] shadow-sm">
-            <div className="w-full h-full rounded-[15px] bg-[#0e1322] flex items-center justify-center text-white">
-              <Sparkles className="w-5 h-5 text-indigo-400" />
-            </div>
+    <div className="max-w-5xl mx-auto flex flex-col h-[calc(100vh-8.5rem)] min-h-[600px] bg-white dark:bg-[#0e1322] border border-slate-200/80 dark:border-slate-800/80 rounded-3xl shadow-xs overflow-hidden animate-in fade-in duration-200">
+      
+      {/* Premium Header */}
+      <div className="px-6 py-5 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-white dark:bg-[#0e1322] sticky top-0 z-10">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+            <GraduationCap className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              Socratic AI Coach
-              <span className="px-2 py-0.5 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">
-                GPT-4 Turbo
+            <div className="flex items-center gap-2 mb-0.5">
+              <h1 className="text-lg font-bold text-slate-900 dark:text-white font-display">
+                SATMATE AI Coach
+              </h1>
+              <span className="px-2 py-0.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-[10px] font-bold text-white uppercase tracking-wider">
+                Plus
               </span>
-            </h1>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-              Guiding you through • {activeQuestion.topic}
+            </div>
+            <p className="text-xs font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Socratic Tutor Active
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <button
             onClick={onOpenFormulas}
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700/60 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all shadow-2xs"
           >
-            <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+            <BookOpen className="w-4 h-4 text-indigo-500" />
             <span>Formulas</span>
           </button>
           <button
             onClick={handleClearChat}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-500 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+            title="Reset Chat"
           >
-            <Trash2 className="w-3.5 h-3.5" />
-            <span>Reset</span>
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6 bg-slate-50/30 dark:bg-transparent">
-        {/* Context banner for active question */}
-        <div className="mx-auto max-w-3xl p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs text-sm text-slate-700 dark:text-slate-300 flex items-start gap-3">
-          <div className="p-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 shrink-0">
-            <Lightbulb className="w-4 h-4" />
+      <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-8 bg-slate-50/50 dark:bg-transparent">
+        
+        {/* Toggleable Context Banner */}
+        {showQuestionContext ? (
+          <div className="mx-auto max-w-3xl p-5 rounded-2xl bg-indigo-50/50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/50 flex gap-4 relative group">
+            <button 
+              onClick={() => setShowQuestionContext(false)}
+              className="absolute top-3 right-3 p-1.5 rounded-lg text-slate-400 hover:bg-white dark:hover:bg-slate-800 transition-colors opacity-0 group-hover:opacity-100"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="w-10 h-10 rounded-xl bg-white dark:bg-indigo-900/40 border border-indigo-100 dark:border-indigo-800/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 shadow-2xs">
+              <Lightbulb className="w-5 h-5" />
+            </div>
+            <div className="pr-6">
+              <span className="font-bold text-indigo-600 dark:text-indigo-400 text-xs uppercase tracking-wider block mb-2">
+                Active Question Context
+              </span>
+              <div className="text-sm text-slate-800 dark:text-slate-200">
+                <MathText>{activeQuestion.text}</MathText>
+              </div>
+            </div>
           </div>
-          <div>
-            <span className="font-bold text-slate-900 dark:text-white text-xs uppercase tracking-wider block mb-1">Active Question</span>
-            <MathText>{activeQuestion.text}</MathText>
+        ) : (
+          <div className="mx-auto max-w-3xl flex justify-center">
+             <button 
+                onClick={() => setShowQuestionContext(true)}
+                className="px-4 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-semibold text-slate-500 hover:text-indigo-600 transition-colors shadow-2xs"
+             >
+               Show Question Context
+             </button>
           </div>
-        </div>
+        )}
 
         {messages.map((msg) => {
           const isUser = msg.sender === 'user';
           return (
             <div
               key={msg.id}
-              className={`flex items-end gap-2.5 max-w-3xl mx-auto ${isUser ? 'flex-row-reverse' : ''}`}
+              className={`flex items-start gap-4 max-w-3xl mx-auto ${isUser ? 'flex-row-reverse' : ''}`}
             >
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                isUser ? 'bg-indigo-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+              <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm ${
+                isUser ? 'bg-indigo-600 text-white' : 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white'
               }`}>
-                {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
+                {isUser ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
               </div>
               <div
-                className={`px-5 py-3.5 rounded-2xl text-sm leading-relaxed shadow-2xs ${
+                className={`px-6 py-4 rounded-3xl text-[15px] leading-relaxed shadow-sm max-w-[85%] ${
                   isUser
-                    ? 'bg-indigo-600 text-white font-medium rounded-br-sm'
-                    : 'bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 border border-slate-200/60 dark:border-slate-700/60 rounded-bl-sm'
+                    ? 'bg-indigo-600 text-white font-medium rounded-tr-sm'
+                    : 'bg-white dark:bg-[#1a1f2e] text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-tl-sm'
                 }`}
               >
                 <MathText>{msg.text}</MathText>
@@ -206,14 +231,14 @@ What must be true about $b^2 - 4ac$ when a quadratic has exactly one real soluti
         })}
 
         {isLoading && (
-          <div className="flex items-end gap-2.5 max-w-3xl mx-auto">
-            <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 flex items-center justify-center shrink-0">
-              <Bot className="w-4 h-4" />
+          <div className="flex items-start gap-4 max-w-3xl mx-auto">
+            <div className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-sm bg-gradient-to-br from-purple-500 to-indigo-600 text-white">
+              <Bot className="w-5 h-5" />
             </div>
-            <div className="px-5 py-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 rounded-bl-sm flex items-center gap-2 shadow-2xs">
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '0ms' }}></span>
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '150ms' }}></span>
-              <span className="w-2 h-2 rounded-full bg-indigo-500 animate-bounce" style={{ animationDelay: '300ms' }}></span>
+            <div className="px-6 py-5 rounded-3xl rounded-tl-sm bg-white dark:bg-[#1a1f2e] border border-slate-100 dark:border-slate-800 flex items-center gap-2 shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-indigo-500/80 animate-bounce" style={{ animationDelay: '0ms' }}></span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500/80 animate-bounce" style={{ animationDelay: '150ms' }}></span>
+              <span className="w-2 h-2 rounded-full bg-indigo-500/80 animate-bounce" style={{ animationDelay: '300ms' }}></span>
             </div>
           </div>
         )}
@@ -222,64 +247,72 @@ What must be true about $b^2 - 4ac$ when a quadratic has exactly one real soluti
       </div>
 
       {/* Suggested Prompts & Socratic Hints */}
-      <div className="px-4 pt-3 pb-2 bg-slate-50 dark:bg-[#0b0f19] border-t border-slate-200 dark:border-slate-800">
-        <div className="max-w-3xl mx-auto flex flex-wrap gap-2 mb-2">
-          {suggestedPrompts.map(prompt => (
-            <button
-              key={prompt}
-              onClick={() => handleSendMessage(prompt)}
-              className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-[11px] font-medium text-slate-600 dark:text-slate-300 hover:border-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-            >
-              {prompt}
-            </button>
-          ))}
-        </div>
-        <div className="max-w-3xl mx-auto flex gap-2 overflow-x-auto scrollbar-none">
-          <button
-            onClick={() => handleTriggerHint(1)}
-            className="flex flex-1 items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-          >
-            <span>Hint 1: Concept</span>
-          </button>
-          <button
-            onClick={() => handleTriggerHint(2)}
-            className="flex flex-1 items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-          >
-            <span>Hint 2: Strategy</span>
-          </button>
-          <button
-            onClick={() => handleTriggerHint(3)}
-            className="flex flex-1 items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-indigo-50/50 dark:bg-indigo-950/30 border border-indigo-200/60 dark:border-indigo-800/60 text-indigo-700 dark:text-indigo-300 text-xs font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
-          >
-            <span>Hint 3: Almost there</span>
-          </button>
+      <div className="bg-white dark:bg-[#0e1322] border-t border-slate-100 dark:border-slate-800 pt-4 pb-2 px-6">
+        <div className="max-w-3xl mx-auto flex flex-col gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {suggestedPrompts.map(prompt => (
+              <button
+                key={prompt}
+                onClick={() => handleSendMessage(prompt)}
+                className="px-4 py-2 rounded-full bg-slate-50 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:border-indigo-300 hover:text-indigo-600 dark:hover:text-indigo-400 transition-all"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-none pb-2">
+            {[
+              { level: 1, label: 'Concept Clue', icon: <Sparkles className="w-3.5 h-3.5 text-indigo-500" /> },
+              { level: 2, label: 'Strategy Clue', icon: <Target className="w-3.5 h-3.5 text-purple-500" /> },
+              { level: 3, label: 'Almost-Solution', icon: <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> }
+            ].map(hint => (
+              <button
+                key={hint.level}
+                onClick={() => handleTriggerHint(hint.level as 1|2|3)}
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#0e1322] border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-all shadow-2xs whitespace-nowrap"
+              >
+                {hint.icon}
+                <span>Hint {hint.level}: {hint.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Input box */}
-      <div className="p-4 bg-white dark:bg-[#0e1322]">
+      {/* Premium Input Area */}
+      <div className="p-4 sm:p-6 bg-white dark:bg-[#0e1322] pt-2">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSendMessage();
           }}
-          className="max-w-3xl mx-auto flex items-center gap-2 relative"
+          className="max-w-3xl mx-auto relative group"
         >
-          <input
-            type="text"
-            placeholder="Type your answer or ask for an explanation..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            className="flex-1 px-5 py-3.5 pr-12 text-sm rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all shadow-inner"
-          />
-          <button
-            type="submit"
-            disabled={!inputValue.trim() || isLoading}
-            className="absolute right-2 p-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-40 disabled:cursor-not-allowed shadow-md transition-all"
-            aria-label="Send message"
-          >
-            <Send className="w-4 h-4" />
-          </button>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-3xl blur-md opacity-0 group-focus-within:opacity-20 transition-opacity duration-500"></div>
+          <div className="relative flex items-center bg-slate-50 dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700/80 rounded-3xl p-2 shadow-inner focus-within:border-indigo-400 dark:focus-within:border-indigo-500 transition-colors">
+            <button type="button" className="p-3 text-slate-400 hover:text-indigo-600 transition-colors shrink-0">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+              </svg>
+            </button>
+            
+            <input
+              type="text"
+              placeholder="Ask the AI Coach..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              className="flex-1 bg-transparent border-none text-[15px] text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-0 px-2"
+            />
+            
+            <button
+              type="submit"
+              disabled={!inputValue.trim() || isLoading}
+              className="p-3 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 disabled:hover:bg-indigo-600 transition-all shrink-0 ml-2"
+            >
+              <Send className="w-5 h-5" />
+            </button>
+          </div>
         </form>
       </div>
     </div>

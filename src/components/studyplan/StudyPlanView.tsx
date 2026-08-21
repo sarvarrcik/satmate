@@ -78,30 +78,83 @@ export const StudyPlanView: React.FC<StudyPlanViewProps> = ({
   const getTasksForDay = (day: number): DailyTask[] => {
     if (day === 18) return dailyPlan.tasks; // Today
     
-    // Mock for other days
     const isPast = day < 18;
-    return [
-      {
-        id: `t1-${day}`,
-        number: 1,
-        title: isPast ? 'Completed Review' : 'Learn Advanced Math',
-        description: isPast ? 'Reviewed 5 missed questions from Algebra.' : 'Focus on nonlinear equations.',
-        minutes: 15,
-        completed: isPast,
-        type: isPast ? 'review' : 'learn',
-        topic: 'Advanced Math'
-      },
-      {
-        id: `t2-${day}`,
-        number: 2,
-        title: 'Practice Set',
-        description: 'Complete 10 questions on new topics.',
-        minutes: 30,
-        completed: isPast,
-        type: 'practice',
-        topic: 'Advanced Math'
-      }
-    ];
+    
+    // For rest days
+    const status = calendarDays.find(d => d.isCurrentMonth && d.day === day)?.status;
+    if (status === 'rest' || status === 'exam') return [];
+
+    // Provide varied task schedules based on the day number
+    if (day % 3 === 0) {
+      return [
+        {
+          id: `t1-${day}`,
+          number: 1,
+          title: 'Review Mistakes',
+          description: 'Review 3 missed questions from functions and graphing.',
+          minutes: 15,
+          completed: isPast,
+          type: 'review',
+          topic: 'Algebra'
+        },
+        {
+          id: `t2-${day}`,
+          number: 2,
+          title: 'Timed Practice',
+          description: 'Complete 20 mixed questions under time pressure.',
+          minutes: 40,
+          completed: isPast,
+          type: 'practice',
+          topic: 'Mixed'
+        }
+      ];
+    } else if (day % 2 === 0) {
+      return [
+        {
+          id: `t1-${day}`,
+          number: 1,
+          title: 'Learn Geometry',
+          description: 'Right triangles and trigonometry fundamentals.',
+          minutes: 25,
+          completed: isPast,
+          type: 'learn',
+          topic: 'Geometry'
+        },
+        {
+          id: `t2-${day}`,
+          number: 2,
+          title: 'Geometry Practice',
+          description: 'Apply concepts learned to 10 practice questions.',
+          minutes: 20,
+          completed: isPast,
+          type: 'practice',
+          topic: 'Geometry'
+        }
+      ];
+    } else {
+      return [
+        {
+          id: `t1-${day}`,
+          number: 1,
+          title: 'Quick Review',
+          description: 'Flashcards on advanced math formulas.',
+          minutes: 10,
+          completed: isPast,
+          type: 'review',
+          topic: 'Advanced Math'
+        },
+        {
+          id: `t2-${day}`,
+          number: 2,
+          title: 'Learn Quadratics',
+          description: 'Vertex form and finding intercepts.',
+          minutes: 30,
+          completed: isPast,
+          type: 'learn',
+          topic: 'Advanced Math'
+        }
+      ];
+    }
   };
 
   const currentTasks = getTasksForDay(selectedDay);

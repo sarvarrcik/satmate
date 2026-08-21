@@ -3,6 +3,7 @@ import { Sidebar, NavTab } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { MobileNav } from './components/layout/MobileNav';
 import { Dashboard } from './components/dashboard/Dashboard';
+import { PracticeDashboardView } from './components/practice/PracticeDashboardView';
 import { QuestionPracticeView } from './components/practice/QuestionPracticeView';
 import { StudyPlanView } from './components/studyplan/StudyPlanView';
 import { AITutorView } from './components/aitutor/AITutorView';
@@ -50,6 +51,7 @@ export function App() {
   const [dailyPlan, setDailyPlan] = useState<DailyPlan>(getStoredDailyPlan);
 
   // Context passing for Practice and AI Tutor
+  const [isPracticing, setIsPracticing] = useState<boolean>(false);
   const [activePracticeTopic, setActivePracticeTopic] = useState<string | undefined>(undefined);
   const [activePracticeQuestionId, setActivePracticeQuestionId] = useState<string | undefined>(undefined);
   const [tutorContextQuestion, setTutorContextQuestion] = useState<Question | undefined>(undefined);
@@ -79,6 +81,19 @@ export function App() {
   };
 
   // Handlers
+  const handleSelectTab = (tab: NavTab) => {
+    if (tab === 'calendar') {
+      setCurrentTab('study_plan');
+    } else if (tab === 'practice') {
+      setIsPracticing(false);
+      setActivePracticeTopic(undefined);
+      setActivePracticeQuestionId(undefined);
+      setCurrentTab('practice');
+    } else {
+      setCurrentTab(tab);
+    }
+  };
+
   const handleStartTask = (task: DailyTask) => {
     if (task.type === 'learn') {
       // Switch to AI Tutor
@@ -88,9 +103,11 @@ export function App() {
     } else if (task.questionIds && task.questionIds.length > 0) {
       setActivePracticeQuestionId(task.questionIds[0]);
       setActivePracticeTopic(task.topic);
+      setIsPracticing(true);
       setCurrentTab('practice');
     } else {
       setActivePracticeTopic(task.topic);
+      setIsPracticing(true);
       setCurrentTab('practice');
     }
   };
@@ -98,12 +115,14 @@ export function App() {
   const handleStartPracticeWithTopic = (topicName?: string) => {
     setActivePracticeTopic(topicName);
     setActivePracticeQuestionId(undefined);
+    setIsPracticing(true);
     setCurrentTab('practice');
   };
 
   const handleStartPracticeQuestion = (questionId: string) => {
     setActivePracticeQuestionId(questionId);
     setActivePracticeTopic(undefined);
+    setIsPracticing(true);
     setCurrentTab('practice');
   };
 
@@ -190,13 +209,7 @@ export function App() {
       {/* Sidebar (Desktop + Mobile slide-over) */}
       <Sidebar
         currentTab={currentTab}
-        onSelectTab={(tab) => {
-          if (tab === 'calendar') {
-            setCurrentTab('study_plan');
-          } else {
-            setCurrentTab(tab);
-          }
-        }}
+        onSelectTab={handleSelectTab}
         userProfile={userProfile}
         isOpenMobile={mobileSidebarOpen}
         onCloseMobile={() => setMobileSidebarOpen(false)}
@@ -237,11 +250,26 @@ export function App() {
             />
           )}
 
-          {currentTab === 'practice' && (
+          {currentTab === 'practice' && !isPracticing && (
+            <PracticeDashboardView
+              onStartPractice={(mode) => {
+                if (mode === 'topic') {
+                  handleStartPracticeWithTopic('Algebra');
+                } else if (mode === 'weak') {
+                  handleStartPracticeWithTopic('Geometry');
+                } else {
+                  setIsPracticing(true);
+                }
+              }}
+              onSelectTab={setCurrentTab}
+            />
+          )}
+
+          {currentTab === 'practice' && isPracticing && (
             <QuestionPracticeView
               initialQuestionId={activePracticeQuestionId}
               topicFilter={activePracticeTopic}
-              onBackToDashboard={() => setCurrentTab('dashboard')}
+              onBackToDashboard={() => setIsPracticing(false)}
               onOpenAITutorWithContext={handleOpenAITutorWithContext}
               onOpenFormulas={() => setShowFormulaDrawer(true)}
             />
@@ -298,7 +326,7 @@ export function App() {
         {/* Mobile Bottom Navigation Bar */}
         <MobileNav
           currentTab={currentTab}
-          onSelectTab={setCurrentTab}
+          onSelectTab={handleSelectTab}
           onOpenMoreMenu={() => setMobileSidebarOpen(true)}
         />
       </div>

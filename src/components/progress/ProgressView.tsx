@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   TrendingUp, 
   Clock, 
@@ -11,6 +11,8 @@ import {
   Layers
 } from 'lucide-react';
 import { UserProfile } from '../../types';
+import { getStoredAttempts } from '../../services/storage';
+import { MATHBOOK_QUESTIONS } from '../../data/questions';
 
 interface ProgressViewProps {
   userProfile: UserProfile;
@@ -23,7 +25,33 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
 }) => {
   const [timeframe, setTimeframe] = useState<'This Week' | 'This Month' | 'All Time'>('This Week');
 
+  // Compute stats from local storage
+  const attempts = useMemo(() => getStoredAttempts(), []);
+  
+  const computedTotalQuestions = Math.max(userProfile.totalQuestionsPracticed, attempts.length);
+  const correctAttempts = attempts.filter(a => a.isCorrect).length;
+  const computedAccuracy = attempts.length > 0 ? Math.round((correctAttempts / attempts.length) * 100) : 0;
+  
+  // Calculate topic performance based on attempts and diagnostic scores
+  const getTopicPercent = (topicName: string, fallback: number) => {
+    // Find questions for this topic
+    const topicQuestionIds = MATHBOOK_QUESTIONS
+      .filter(q => q.topic.toLowerCase().includes(topicName.toLowerCase()) || q.section === topicName)
+      .map(q => q.id);
+      
+    const topicAttempts = attempts.filter(a => topicQuestionIds.includes(a.questionId));
+    
+    if (topicAttempts.length >= 3) {
+      const correct = topicAttempts.filter(a => a.isCorrect).length;
+      return Math.round((correct / topicAttempts.length) * 100);
+    }
+    
+    // Fallback to diagnostic score or default
+    return (userProfile.diagnosticScores as any)?.[topicName] || fallback;
+  };
+
   // Accuracy over time data points (Matching Screenshot: Aug 12 -> Aug 18, rising ~58% to ~72%)
+  // In a real app, this would group attempts by day.
   const chartData = [
     { date: 'Aug 12', accuracy: 58 },
     { date: 'Aug 13', accuracy: 60 },
@@ -31,14 +59,14 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
     { date: 'Aug 15', accuracy: 64 },
     { date: 'Aug 16', accuracy: 67 },
     { date: 'Aug 17', accuracy: 70 },
-    { date: 'Aug 18', accuracy: 72 },
+    { date: 'Aug 18', accuracy: computedAccuracy || 72 },
   ];
 
   const topicPerformances = [
-    { name: 'Algebra', percent: 78, color: 'bg-emerald-500', barColor: 'from-emerald-500 to-teal-400' },
-    { name: 'Advanced Math', percent: 65, color: 'bg-amber-500', barColor: 'from-amber-500 to-yellow-400' },
-    { name: 'Problem Solving', percent: 70, color: 'bg-emerald-500', barColor: 'from-emerald-500 to-teal-400' },
-    { name: 'Geometry', percent: 60, color: 'bg-amber-500', barColor: 'from-amber-500 to-orange-400' },
+    { name: 'Algebra', percent: getTopicPercent('Algebra', 78), color: 'bg-emerald-500', barColor: 'from-emerald-500 to-teal-400' },
+    { name: 'Advanced Math', percent: getTopicPercent('Advanced Math', 65), color: 'bg-amber-500', barColor: 'from-amber-500 to-yellow-400' },
+    { name: 'Problem Solving', percent: getTopicPercent('Problem Solving', 70), color: 'bg-emerald-500', barColor: 'from-emerald-500 to-teal-400' },
+    { name: 'Geometry & Trigonometry', percent: getTopicPercent('Geometry & Trigonometry', 60), color: 'bg-amber-500', barColor: 'from-amber-500 to-orange-400' },
   ];
 
   return (
@@ -75,7 +103,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             Accuracy
           </span>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-display mb-1.5">
-            72%
+            {computedAccuracy || 72}%
           </div>
           <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -89,7 +117,7 @@ export const ProgressView: React.FC<ProgressViewProps> = ({
             Questions Solved
           </span>
           <div className="text-3xl font-extrabold text-slate-900 dark:text-white font-display mb-1.5">
-            {userProfile.totalQuestionsPracticed}
+            {computedTotalQuestions}
           </div>
           <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
             <ArrowUpRight className="w-3.5 h-3.5" />
